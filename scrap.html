@@ -1,0 +1,81 @@
+<!-- Helper scripts from Priya that shows how to integrate CRM with Webflow -->
+
+<script type="text/javascript">
+    var _cio = _cio || [];
+    (function() {
+      var a,b,c;a=function(f){return function(){_cio.push([f].
+      concat(Array.prototype.slice.call(arguments,0)))}};b=["load","identify",
+      "sidentify","track","page"];for(c=0;c<b.length;c++){_cio[b[c]]=a(b[c])};
+      var t = document.createElement('script'),
+          s = document.getElementsByTagName('script')[0];
+      t.async = true;
+      t.id    = 'cio-tracker';
+      t.setAttribute('data-site-id', '955091d6c1df60b1febb');
+      t.src = 'https://assets.customer.io/assets/track.js';
+      s.parentNode.insertBefore(t, s);
+    })();
+  </script>            
+  <script>
+  $(document).ready(function(){
+   $(document).on('click', '.btn-early-access', function (e) {
+     var email = $(this).closest("form").find("input[type='email']").val();
+   
+     if(isEmail(email)) {
+        const now = new Date();  
+        const secondsSinceEpoch = Math.round(now.getTime() / 1000);
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        var utm_source = '', utm_campaign = '',  utm_medium = '', utm_content = '';
+        if(urlParams.has('utm_source'))
+        {
+            utm_source = urlParams.get('utm_source');
+        }
+        if(urlParams.has('utm_campaign'))
+        {
+            utm_campaign = urlParams.get('utm_campaign');
+        }
+        if(urlParams.has('utm_medium'))
+        {
+            utm_medium = urlParams.get('utm_medium');
+        }
+        if(urlParams.has('utm_content'))
+        {
+            utm_content = urlParams.get('utm_content');
+        }
+       if(utm_source == '')
+       {
+         _cio.identify({
+           // Strongly recommended attributes
+           email: email, // Email of the currently signed in user.
+           // Required attributes
+           id: email,  
+           created_at: secondsSinceEpoch,
+           is_webflow_lead: true
+         });
+       }
+       else
+       {
+         _cio.identify({
+           // Strongly recommended attributes
+           email: email, // Email of the currently signed in user.
+           // Required attributes
+           id: email,  
+           created_at: secondsSinceEpoch,
+           is_webflow_lead: true,
+           utm_source: utm_source,
+           utm_medium: utm_medium,
+           utm_campaign: utm_campaign,
+           utm_content: utm_content
+  
+         });
+       }
+        _cio.track("EarlyAccess");
+     }
+   });
+    function isEmail(email) {
+    var regex = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+    return regex.test(email);
+  }
+  });
+   
+  </script>
