@@ -1,3 +1,13 @@
+/*!
+ * Scale Higher Library v0.0.2
+ * Copyright Scale Higher, Inc.
+ *
+ * Created: 2021-10-01
+ * Last Updated: 2021-10-02 (15:07PT)
+ * 
+ * Dependencies
+ * <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
+ */
 
 // ConvertKit API wrapper
 function ConvertKit(api_key) {
@@ -24,25 +34,59 @@ ConvertKit.prototype.signUpForm = function(email, first_name) {
   this.subscribe("2642011", email, first_name);
 }
 
-// Create ConvertKit
-convertkit = new ConvertKit("JB7_qk7ItHuzucoVjbadgQ");
+// Setup JS handlers
+$(document).ready( () => {
+  // Create ConvertKit class with API Key
+  convertkit = new ConvertKit("JB7_qk7ItHuzucoVjbadgQ");
 
-// Setup submit action for Sign Up form
-$("form#wf-form-Sign-Up-Form").submit( () => {
-	var first_name = $("#first_name").val();
-	var email = $("#email").val();
-	
-    // Validate email address
-    if (convertkit.isEmail(email)) {
-      // Submit email address to ConvertKit
-      convertkit.signUpForm(email, first_name);
+  // Register back-button click handler
+  $('a.back-button').click(function() {
+    history.back(1); return false;
+  });
+
+  // Pre-fill Sign Up form fields from cookies
+  $("form#wf-form-Sign-Up-Form input[name=first_name]").val(Cookies.get("member_first_name"));
+  $("form#wf-form-Sign-Up-Form input[name=email]").val(Cookies.get("member_email"));
+
+  // Register Sign Up form submit handler
+  $("form#wf-form-Sign-Up-Form").on( "submit", () => {
+    const first_name = $("#first_name").val();
+    const email = $("#email").val();
+    
+      // Validate email address
+      if (convertkit.isEmail(email)) {
+        // Submit email address to ConvertKit
+        convertkit.signUpForm(email, first_name);
+        console.log("Submitted " + first_name + "(" + email + ") to ConvertKit");
+
+        // Fire Facebook pixel tracking for Lead event
+        fbq('track', 'Lead');
+
+        // Record member info in cookies
+        Cookies.set('member_first_name', first_name, { expires: 7 });
+        Cookies.set('member_email', email, { expires: 7 });
+      } else {
+        console.log("Attempted to submit invalid email address");
+      }
+      // Execute the default submit action (GET request sent to Typeform)
+      return true;
+  });
+
+  // Handle loading of Apply Done page
+  if ($("body").hasClass("apply-done")) {
+    const params = new URLSearchParams(window.location.search);
+    const paramsFirstName = params.get('first_name');
+    const paramsEmail = params.get('email');
+
+    // Make sure page is being loaded with the right parameters
+    if (!!paramsFirstName && !!paramsEmail) {
+      // Personalize the headline
+      $('h1.apply-done-message').text(paramsFirstName + ', thank you for applying!');
 
       // Fire Facebook pixel tracking for Lead event
-      fbq('track', 'Lead');
-      console.log("Submitted " + first_name + "(" + email + ") to ConvertKit")
+      fbq('track', 'SubmitApplication');
     } else {
-      console.log("Attempted to submit invalid email address")
+      window.location = '/';
     }
-    // Execute the default submit action (GET request sent to Typeform)
-    return true;
+  }
 });
