@@ -1,9 +1,9 @@
 /*!
- * Scale Higher Library v0.0.2
+ * Scale Higher Library v0.0.3
  * Copyright Scale Higher, Inc.
  *
  * Created: 2021-10-01
- * Last Updated: 2021-10-02 (15:07PT)
+ * Last Updated: 2021-10-02 (18:54PT)
  * 
  * Dependencies
  * <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
