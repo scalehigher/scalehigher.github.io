@@ -34,6 +34,27 @@ ConvertKit.prototype.signUpForm = function(email, first_name) {
   this.subscribe("2642011", email, first_name);
 }
 
+ConvertKit.prototype.listTags = function() {
+  var get_url = "https://api.convertkit.com/v3/tags?api_key=" + this.api_key;
+
+  $.get( get_url, (data) => {
+    console.log(data);
+  });
+}
+
+ConvertKit.prototype.subscribeToTag = function(tag_id, email) {
+  var post_url = "https://api.convertkit.com/v3/tags/" + tag_id + "/subscribe";
+
+  $.post( post_url, {
+    api_key: this.api_key,
+    email: email,
+  });  
+}
+
+ConvertKit.prototype.subscribeToCompletedApplicationTag = function(email) {
+  this.subscribeToTag(2663437, email);
+}
+
 // Setup JS handlers
 $(document).ready( () => {
   // Create ConvertKit class with API Key
@@ -83,9 +104,15 @@ $(document).ready( () => {
       // Personalize the headline
       $('h1.apply-done-message').text(paramsFirstName + ', thank you for applying!');
 
-      // Fire Facebook pixel tracking for Lead event
+      // Add "Completed Member Application" tag in ConvertKit
+      if (convertkit.isEmail(paramsEmail)) {
+        convertkit.subscribeToCompletedApplicationTag(paramsEmail);
+      }
+
+      // Fire Facebook pixel tracking for SubmitApplication event
       fbq('track', 'SubmitApplication');
     } else {
+      // Redirect if params aren't set properly
       window.location = '/';
     }
   }
