@@ -6,6 +6,7 @@
  * Last Updated: 2021-10-02 (18:54PT)
  * 
  * Dependencies
+ * <script src='https://js.sentry-cdn.com/126d7a1b94294d22bbc88991e3fccf1d.min.js' crossorigin="anonymous" data-lazy="no"></script>
  * <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
  */
 
@@ -42,16 +43,17 @@ ConvertKit.prototype.listTags = function() {
   });
 }
 
-ConvertKit.prototype.subscribeToTag = function(tag_id, email) {
+ConvertKit.prototype.subscribeToTag = function(tag_id, email, first_name = "") {
   var post_url = "https://api.convertkit.com/v3/tags/" + tag_id + "/subscribe";
 
   $.post( post_url, {
     api_key: this.api_key,
     email: email,
+    first_name: first_name
   });  
 }
 
-ConvertKit.prototype.subscribeToCompletedApplicationTag = function(email) {
+ConvertKit.prototype.subscribeToCompletedApplicationTag = function(email, first_name = "") {
   this.subscribeToTag(2663437, email);
 }
 
@@ -66,31 +68,31 @@ $(document).ready( () => {
   });
 
   // Pre-fill Sign Up form fields from cookies
-  $("form#wf-form-Sign-Up-Form input[name=first_name]").val(Cookies.get("member_first_name"));
-  $("form#wf-form-Sign-Up-Form input[name=email]").val(Cookies.get("member_email"));
+  $("form#wf-form-Sign-Up-Form input[name=first_name]").val(Cookies.get("user_first_name"));
+  $("form#wf-form-Sign-Up-Form input[name=email]").val(Cookies.get("user_email"));
 
   // Register Sign Up form submit handler
   $("form#wf-form-Sign-Up-Form").on( "submit", () => {
     const first_name = $("#first_name").val();
     const email = $("#email").val();
     
-      // Validate email address
-      if (convertkit.isEmail(email)) {
-        // Submit email address to ConvertKit
-        convertkit.signUpForm(email, first_name);
-        console.log("Submitted " + first_name + "(" + email + ") to ConvertKit");
+    // Validate email address
+    if (convertkit.isEmail(email)) {
+      // Submit email address to ConvertKit
+      convertkit.signUpForm(email, first_name);
+      console.log("Submitted " + first_name + "(" + email + ") to ConvertKit");
 
-        // Fire Facebook pixel tracking for Lead event
-        fbq('track', 'Lead');
+      // Fire Facebook pixel tracking for Lead event
+      fbq('track', 'Lead');
 
-        // Record member info in cookies
-        Cookies.set('member_first_name', first_name, { expires: 7 });
-        Cookies.set('member_email', email, { expires: 7 });
-      } else {
-        console.log("Attempted to submit invalid email address");
-      }
-      // Execute the default submit action (GET request sent to Typeform)
-      return true;
+      // Record user info in cookies
+      Cookies.set('user_first_name', first_name, { expires: 7 });
+      Cookies.set('user_email', email, { expires: 7 });
+    } else {
+      console.log("Attempted to submit invalid email address");
+    }
+    // Execute the default submit action (GET request sent to Typeform)
+    return true;
   });
 
   // Handle loading of Apply Done page
@@ -106,7 +108,7 @@ $(document).ready( () => {
 
       // Add "Completed Member Application" tag in ConvertKit
       if (convertkit.isEmail(paramsEmail)) {
-        convertkit.subscribeToCompletedApplicationTag(paramsEmail);
+        convertkit.subscribeToCompletedApplicationTag(paramsEmail, paramsFirstName);
       }
 
       // Fire Facebook pixel tracking for SubmitApplication event
