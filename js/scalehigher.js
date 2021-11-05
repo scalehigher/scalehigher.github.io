@@ -118,4 +118,6 @@ $(document).ready( () => {
       window.location = '/';
     }
   }
+
+  myUndefinedFunction();
 });
