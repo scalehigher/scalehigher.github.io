@@ -1,5 +1,5 @@
 /*!
- * Scale Higher Library v0.0.5
+ * Scale Higher Library v0.0.6
  * Copyright Scale Higher, Inc.
  *
  * Created: 2021-10-01
@@ -32,11 +32,22 @@ ConvertKit.prototype.isEmail = function(str) {
 ConvertKit.prototype.subscribe = function(form_id, email, first_name = "") {
   var post_url = "https://api.convertkit.com/v3/forms/" + form_id + "/subscribe";
 
-  $.post( post_url, {
-    api_key: this.api_key,
-    email: email,
-    first_name: first_name
+  $.ajax({
+    type: "POST",
+    url: post_url,
+    data: {
+      api_key: this.api_key,
+      email: email,
+      first_name: first_name
+    },
+    async: false
   });
+
+  // $.post( post_url, {
+  //   api_key: this.api_key,
+  //   email: email,
+  //   first_name: first_name
+  // });
 }
 
 ConvertKit.prototype.signUpForm = function(email, first_name) {
