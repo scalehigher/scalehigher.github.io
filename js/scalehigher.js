@@ -1,9 +1,9 @@
 /*!
- * Scale Higher Library v0.0.3
+ * Scale Higher Library v0.0.4
  * Copyright Scale Higher, Inc.
  *
  * Created: 2021-10-01
- * Last Updated: 2021-10-02 (18:54PT)
+ * Last Updated: 2021-11-05 (18:54PT)
  * 
  * Dependencies
  * <script src='https://js.sentry-cdn.com/126d7a1b94294d22bbc88991e3fccf1d.min.js' crossorigin="anonymous" data-lazy="no"></script>
@@ -62,6 +62,12 @@ $(document).ready( () => {
   // Create ConvertKit class with API Key
   convertkit = new ConvertKit("JB7_qk7ItHuzucoVjbadgQ");
 
+  // Set Sentry context
+  Sentry.setContext("character", {
+    first_name: Cookies.get("user_first_name"),
+    email: Cookies.get("user_email")
+  });
+
   // Register back-button click handler
   $('a.back-button').click(function() {
     history.back(1); return false;
@@ -80,7 +86,7 @@ $(document).ready( () => {
     if (convertkit.isEmail(email)) {
       // Submit email address to ConvertKit
       convertkit.signUpForm(email, first_name);
-      console.log("Submitted " + first_name + "(" + email + ") to ConvertKit");
+      Sentry.captureMessage("Submitted " + first_name + "(" + email + ") to ConvertKit");
 
       // Fire Facebook pixel tracking for Lead event
       fbq('track', 'Lead');
@@ -89,7 +95,7 @@ $(document).ready( () => {
       Cookies.set('user_first_name', first_name, { expires: 7 });
       Cookies.set('user_email', email, { expires: 7 });
     } else {
-      console.log("Attempted to submit invalid email address");
+      Sentry.captureMessage("Attempted to submit invalid email address: " + email);
     }
     // Execute the default submit action (GET request sent to Typeform)
     return true;
@@ -118,6 +124,4 @@ $(document).ready( () => {
       window.location = '/';
     }
   }
-
-  myUndefinedFunction();
 });
