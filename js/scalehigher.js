@@ -1,5 +1,5 @@
 /*!
- * Scale Higher Library v0.0.4
+ * Scale Higher Library v0.0.5
  * Copyright Scale Higher, Inc.
  *
  * Created: 2021-10-01
@@ -80,7 +80,7 @@ $(document).ready( () => {
   $("form#wf-form-Sign-Up-Form input[name=email]").val(Cookies.get("user_email"));
 
   // Register Sign Up form submit handler
-  $("form#wf-form-Sign-Up-Form").on( "submit", () => {
+  $("form#wf-form-Sign-Up-Form").on("submit", () => {
     const first_name = $("#first_name").val();
     const email = $("#email").val();
     
