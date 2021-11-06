@@ -32,6 +32,23 @@ ConvertKit.prototype.isEmail = function(str) {
 ConvertKit.prototype.subscribe = function(form_id, email, first_name = "") {
   var post_url = "https://api.convertkit.com/v3/forms/" + form_id + "/subscribe";
 
+  $.post( post_url, {
+    api_key: this.api_key,
+    email: email,
+    first_name: first_name
+  });
+}
+
+ConvertKit.prototype.subscribeSynchronously = function(form_id, email, first_name = "") {
+  var post_url = "https://api.convertkit.com/v3/forms/" + form_id + "/subscribe";
+
+  // Submitting the request syncrhonously is necessary so that the request
+  // completes before the form action takes the user to a new 
+  // page (and interrupts the request). But, this is bad since 
+  // it blocks execution. We could implement a solution with callbacks
+  // (where the callback changes the window location), but that feels 
+  // like too much work right now. I'm likely going to move the ConvertKit API
+  // call to the server anyway.
   $.ajax({
     type: "POST",
     url: post_url,
@@ -42,16 +59,10 @@ ConvertKit.prototype.subscribe = function(form_id, email, first_name = "") {
     },
     async: false
   });
-
-  // $.post( post_url, {
-  //   api_key: this.api_key,
-  //   email: email,
-  //   first_name: first_name
-  // });
 }
 
 ConvertKit.prototype.signUpForm = function(email, first_name) {
-  this.subscribe(2642011, email, first_name);
+  this.subscribeSynchronously(2642011, email, first_name);
 }
 
 ConvertKit.prototype.listTags = function() {
