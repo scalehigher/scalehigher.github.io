@@ -10,6 +10,14 @@
  * <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
  */
 
+// Set Sentry context on load
+Sentry.onLoad(function() {
+  Sentry.setContext("character", {
+    first_name: Cookies.get("user_first_name"),
+    email: Cookies.get("user_email")
+  });
+});
+
 // ConvertKit API wrapper
 function ConvertKit(api_key) {
   this.api_key = api_key;
@@ -32,7 +40,7 @@ ConvertKit.prototype.subscribe = function(form_id, email, first_name = "") {
 }
 
 ConvertKit.prototype.signUpForm = function(email, first_name) {
-  this.subscribe("2642011", email, first_name);
+  this.subscribe(2642011, email, first_name);
 }
 
 ConvertKit.prototype.listTags = function() {
@@ -61,12 +69,6 @@ ConvertKit.prototype.subscribeToCompletedApplicationTag = function(email, first_
 $(document).ready( () => {
   // Create ConvertKit class with API Key
   convertkit = new ConvertKit("JB7_qk7ItHuzucoVjbadgQ");
-
-  // Set Sentry context
-  Sentry.setContext("character", {
-    first_name: Cookies.get("user_first_name"),
-    email: Cookies.get("user_email")
-  });
 
   // Register back-button click handler
   $('a.back-button').click(function() {
