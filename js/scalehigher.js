@@ -1,9 +1,9 @@
 /*!
- * Scale Higher Library v0.0.6
+ * Scale Higher Library v0.0.7
  * Copyright Scale Higher, Inc.
  *
  * Created: 2021-10-01
- * Last Updated: 2021-11-05 (18:54PT)
+ * Last Updated: 2021-11-08 (22:14PT)
  * 
  * Dependencies
  * <script src='https://js.sentry-cdn.com/126d7a1b94294d22bbc88991e3fccf1d.min.js' crossorigin="anonymous" data-lazy="no"></script>
@@ -61,7 +61,7 @@ ConvertKit.prototype.subscribeSynchronously = function(form_id, email, first_nam
   });
 }
 
-ConvertKit.prototype.membershipApplicationForm = function(email, first_name) {
+ConvertKit.prototype.memberApplicationForm = function(email, first_name) {
   this.subscribeSynchronously(2642011, email, first_name);
 }
 
@@ -87,22 +87,22 @@ ConvertKit.prototype.subscribeToTag = function(tag_id, email, first_name = "") {
   });  
 }
 
-ConvertKit.prototype.subscribeToCompletedMembershipApplicationTag = function(email, first_name = "") {
+ConvertKit.prototype.subscribeToCompletedMemberApplicationTag = function(email, first_name = "") {
   this.subscribeToTag(2663437, email);
 }
 
 // Process application form submission
-function submitApplicationForm(applicationFormClass) {
+function submitApplicationForm(applicationFormID) {
   const first_name = $("#first_name").val();
   const email = $("#email").val();
   
   // Validate email address
   if (convertkit.isEmail(email)) {
     // Submit email address to ConvertKit
-    if (applicationFormClass === "form#wf-form-Member-Application-Form") {
-      convertkit.membershipApplicationForm(email, first_name);
+    if (applicationFormID === "form#wf-form-Member-Application-Form") {
+      convertkit.memberApplicationForm(email, first_name);
       Sentry.captureMessage("Submitted " + first_name + "(" + email + ") to ConvertKit Member Application Form");
-    } else if (applicationFormClass === "wf-form-Programs-Application-Form") {
+    } else if (applicationFormID === "form#wf-form-Programs-Application-Form") {
       convertkit.programsApplicationForm(email, first_name);
       Sentry.captureMessage("Submitted " + first_name + "(" + email + ") to ConvertKit Programs Application Form");      
     }
@@ -128,9 +128,9 @@ $(document).ready( () => {
     history.back(1); return false;
   });
 
-  // Pre-fill Membership Application form fields from cookies
-  $("form#wf-form-Membership-Application-Form input[name=first_name]").val(Cookies.get("user_first_name"));
-  $("form#wf-form-Membership-Application-Form input[name=email]").val(Cookies.get("user_email"));
+  // Pre-fill Member Application form fields from cookies
+  $("form#wf-form-Member-Application-Form input[name=first_name]").val(Cookies.get("user_first_name"));
+  $("form#wf-form-Member-Application-Form input[name=email]").val(Cookies.get("user_email"));
 
 
   // Pre-fill Programs Application form fields from cookies
@@ -164,8 +164,8 @@ $(document).ready( () => {
   });
 
   // Register Programs Application Form submit handler
-  $("wf-form-Programs-Application-Form").on("submit", () => {
-    submitApplicationForm("wf-form-Programs-Application-Form");
+  $("form#wf-form-Programs-Application-Form").on("submit", () => {
+    submitApplicationForm("form#wf-form-Programs-Application-Form");
 
       // Execute the default submit action (GET request sent to Typeform)
       return true;
@@ -184,7 +184,7 @@ $(document).ready( () => {
 
       // Add "Completed Member Application" tag in ConvertKit
       if (convertkit.isEmail(paramsEmail)) {
-        convertkit.subscribeToCompletedMembershipApplicationTag(paramsEmail, paramsFirstName);
+        convertkit.subscribeToCompletedMemberApplicationTag(paramsEmail, paramsFirstName);
       }
 
       // Fire Facebook pixel tracking for SubmitApplication event
