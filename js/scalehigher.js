@@ -61,8 +61,12 @@ ConvertKit.prototype.subscribeSynchronously = function(form_id, email, first_nam
   });
 }
 
-ConvertKit.prototype.signUpForm = function(email, first_name) {
+ConvertKit.prototype.membershipApplicationForm = function(email, first_name) {
   this.subscribeSynchronously(2642011, email, first_name);
+}
+
+ConvertKit.prototype.programsApplicationForm = function(email, first_name) {
+  this.subscribeSynchronously(2756052, email, first_name);
 }
 
 ConvertKit.prototype.listTags = function() {
@@ -83,8 +87,35 @@ ConvertKit.prototype.subscribeToTag = function(tag_id, email, first_name = "") {
   });  
 }
 
-ConvertKit.prototype.subscribeToCompletedApplicationTag = function(email, first_name = "") {
+ConvertKit.prototype.subscribeToCompletedMembershipApplicationTag = function(email, first_name = "") {
   this.subscribeToTag(2663437, email);
+}
+
+// Process application form submission
+function submitApplicationForm(applicationFormClass) {
+  const first_name = $("#first_name").val();
+  const email = $("#email").val();
+  
+  // Validate email address
+  if (convertkit.isEmail(email)) {
+    // Submit email address to ConvertKit
+    if (applicationFormClass === "form#wf-form-Member-Application-Form") {
+      convertkit.membershipApplicationForm(email, first_name);
+      Sentry.captureMessage("Submitted " + first_name + "(" + email + ") to ConvertKit Member Application Form");
+    } else if (applicationFormClass === "wf-form-Programs-Application-Form") {
+      convertkit.programsApplicationForm(email, first_name);
+      Sentry.captureMessage("Submitted " + first_name + "(" + email + ") to ConvertKit Programs Application Form");      
+    }
+
+    // Fire Facebook pixel tracking for Lead event
+    fbq('track', 'Lead');
+
+    // Record user info in cookies
+    Cookies.set('user_first_name', first_name, { expires: 7 });
+    Cookies.set('user_email', email, { expires: 7 });
+  } else {
+    Sentry.captureMessage("Attempted to submit invalid email address: " + email);
+  }
 }
 
 // Setup JS handlers
@@ -97,32 +128,47 @@ $(document).ready( () => {
     history.back(1); return false;
   });
 
-  // Pre-fill Sign Up form fields from cookies
-  $("form#wf-form-Sign-Up-Form input[name=first_name]").val(Cookies.get("user_first_name"));
-  $("form#wf-form-Sign-Up-Form input[name=email]").val(Cookies.get("user_email"));
+  // Pre-fill Membership Application form fields from cookies
+  $("form#wf-form-Membership-Application-Form input[name=first_name]").val(Cookies.get("user_first_name"));
+  $("form#wf-form-Membership-Application-Form input[name=email]").val(Cookies.get("user_email"));
 
-  // Register Sign Up form submit handler
-  $("form#wf-form-Sign-Up-Form").on("submit", () => {
-    const first_name = $("#first_name").val();
-    const email = $("#email").val();
+
+  // Pre-fill Programs Application form fields from cookies
+  $("form#wf-form-Programs-Application-Form input[name=first_name]").val(Cookies.get("user_first_name"));
+  $("form#wf-form-Programs-Application-Form input[name=email]").val(Cookies.get("user_email"));
+
+  // Register Member Application Form submit handler
+  $("form#wf-form-Member-Application-Form").on("submit", () => {
+    submitApplicationForm("form#wf-form-Member-Application-Form");
+
+    // const first_name = $("#first_name").val();
+    // const email = $("#email").val();
     
-    // Validate email address
-    if (convertkit.isEmail(email)) {
-      // Submit email address to ConvertKit
-      convertkit.signUpForm(email, first_name);
-      Sentry.captureMessage("Submitted " + first_name + "(" + email + ") to ConvertKit");
+    // // Validate email address
+    // if (convertkit.isEmail(email)) {
+    //   // Submit email address to ConvertKit
+    //   convertkit.signUpForm(email, first_name);
+    //   Sentry.captureMessage("Submitted " + first_name + "(" + email + ") to ConvertKit");
 
-      // Fire Facebook pixel tracking for Lead event
-      fbq('track', 'Lead');
+    //   // Fire Facebook pixel tracking for Lead event
+    //   fbq('track', 'Lead');
 
-      // Record user info in cookies
-      Cookies.set('user_first_name', first_name, { expires: 7 });
-      Cookies.set('user_email', email, { expires: 7 });
-    } else {
-      Sentry.captureMessage("Attempted to submit invalid email address: " + email);
-    }
+    //   // Record user info in cookies
+    //   Cookies.set('user_first_name', first_name, { expires: 7 });
+    //   Cookies.set('user_email', email, { expires: 7 });
+    // } else {
+    //   Sentry.captureMessage("Attempted to submit invalid email address: " + email);
+    // }
     // Execute the default submit action (GET request sent to Typeform)
     return true;
+  });
+
+  // Register Programs Application Form submit handler
+  $("wf-form-Programs-Application-Form").on("submit", () => {
+    submitApplicationForm("wf-form-Programs-Application-Form");
+
+      // Execute the default submit action (GET request sent to Typeform)
+      return true;
   });
 
   // Handle loading of Apply Done page
@@ -138,7 +184,7 @@ $(document).ready( () => {
 
       // Add "Completed Member Application" tag in ConvertKit
       if (convertkit.isEmail(paramsEmail)) {
-        convertkit.subscribeToCompletedApplicationTag(paramsEmail, paramsFirstName);
+        convertkit.subscribeToCompletedMembershipApplicationTag(paramsEmail, paramsFirstName);
       }
 
       // Fire Facebook pixel tracking for SubmitApplication event
