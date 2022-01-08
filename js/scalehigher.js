@@ -1,9 +1,9 @@
 /*!
- * Scale Higher Library v0.0.7
+ * Scale Higher Library v0.0.8
  * Copyright Scale Higher, Inc.
  *
  * Created: 2021-10-01
- * Last Updated: 2021-11-08 (22:14PT)
+ * Last Updated: 2022-01-08 (12:25PT)
  * 
  * Dependencies
  * <script src='https://js.sentry-cdn.com/126d7a1b94294d22bbc88991e3fccf1d.min.js' crossorigin="anonymous" data-lazy="no"></script>
