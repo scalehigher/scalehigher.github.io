@@ -69,6 +69,14 @@ ConvertKit.prototype.programsApplicationForm = function(email, first_name) {
   this.subscribeSynchronously(2756052, email, first_name);
 }
 
+ConvertKit.prototype.programsWaitlistForm = function(email, first_name) {
+  this.subscribeSynchronously(2901164, email, first_name);
+}
+
+ConvertKit.prototype.communityForm = function(email, first_name) {
+  this.subscribeSynchronously(2901171, email, first_name);
+}
+
 ConvertKit.prototype.listTags = function() {
   var get_url = "https://api.convertkit.com/v3/tags?api_key=" + this.api_key;
 
@@ -105,6 +113,12 @@ function submitApplicationForm(applicationFormID) {
     } else if (applicationFormID === "form#wf-form-Programs-Application-Form") {
       convertkit.programsApplicationForm(email, first_name);
       Sentry.captureMessage("Submitted " + first_name + "(" + email + ") to ConvertKit Programs Application Form");      
+    } else if (applicationFormID === "form#wf-form-Programs-Waitlist-Form") {
+      convertkit.programsWaitlistForm(email, first_name);
+      Sentry.captureMessage("Submitted " + first_name + "(" + email + ") to ConvertKit Programs Waitlist Form");      
+    } else if (applicationFormID === "form#wf-form-Community-Form") {
+      convertkit.communityForm(email, first_name);
+      Sentry.captureMessage("Submitted " + first_name + "(" + email + ") to ConvertKit Community Form");      
     }
 
     // Fire Facebook pixel tracking for Lead event
@@ -132,10 +146,17 @@ $(document).ready( () => {
   $("form#wf-form-Member-Application-Form input[name=first_name]").val(Cookies.get("user_first_name"));
   $("form#wf-form-Member-Application-Form input[name=email]").val(Cookies.get("user_email"));
 
-
   // Pre-fill Programs Application form fields from cookies
   $("form#wf-form-Programs-Application-Form input[name=first_name]").val(Cookies.get("user_first_name"));
   $("form#wf-form-Programs-Application-Form input[name=email]").val(Cookies.get("user_email"));
+
+  // Pre-fill Programs Waitlist form fields from cookies
+  $("form#wf-form-Programs-Waitlist-Form input[name=first_name]").val(Cookies.get("user_first_name"));
+  $("form#wf-form-Programs-Waitlist-Form input[name=email]").val(Cookies.get("user_email"));
+
+  // Pre-fill Community form fields from cookies
+  $("form#wf-form-Community-Form input[name=first_name]").val(Cookies.get("user_first_name"));
+  $("form#wf-form-Community-Form input[name=email]").val(Cookies.get("user_email"));
 
   // Register Member Application Form submit handler
   $("form#wf-form-Member-Application-Form").on("submit", () => {
@@ -167,9 +188,27 @@ $(document).ready( () => {
   $("form#wf-form-Programs-Application-Form").on("submit", () => {
     submitApplicationForm("form#wf-form-Programs-Application-Form");
 
-      // Execute the default submit action (GET request sent to Typeform)
-      return true;
+    // Execute the default submit action (GET request sent to Typeform)
+    return true;
   });
+
+  // Register Programs Waitlist Form submit handler
+  $("form#wf-form-Programs-Waitlist-Form").on("submit", () => {
+    submitApplicationForm("form#wf-form-Programs-Waitlist-Form");
+
+    // Execute the default submit action (GET request sent to Typeform)
+    return true;
+  });
+
+
+  // Register Community Form submit handler
+  $("form#wf-form-Community-Form").on("submit", () => {
+    submitApplicationForm("form#wf-form-Community-Form");
+
+    // Execute the default submit action (GET request sent to Typeform)
+    return true;
+  });
+  
 
   // Handle loading of Apply Done page
   if ($("body").hasClass("apply-done")) {
