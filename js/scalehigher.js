@@ -1,5 +1,5 @@
 /*!
- * Scale Higher Library v0.0.8
+ * Scale Higher Library v0.0.9
  * Copyright Scale Higher, Inc.
  *
  * Created: 2021-10-01
