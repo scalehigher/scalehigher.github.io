@@ -11,12 +11,14 @@
  */
 
 // Set Sentry context on load
-Sentry.onLoad(function() {
-  Sentry.setContext("character", {
-    first_name: Cookies.get("user_first_name"),
-    email: Cookies.get("user_email")
+if (window.Sentry) {
+  Sentry.onLoad(function() {
+    Sentry.setContext("character", {
+      first_name: Cookies.get("user_first_name"),
+      email: Cookies.get("user_email")
+    });
   });
-});
+}
 
 // ConvertKit API wrapper
 function ConvertKit(api_key) {
@@ -109,26 +111,26 @@ function submitApplicationForm(applicationFormID) {
     // Submit email address to ConvertKit
     if (applicationFormID === "form#wf-form-Member-Application-Form") {
       convertkit.memberApplicationForm(email, first_name);
-      Sentry.captureMessage("Submitted " + first_name + "(" + email + ") to ConvertKit Member Application Form");
+      window.Sentry && Sentry.captureMessage("Submitted " + first_name + "(" + email + ") to ConvertKit Member Application Form");
     } else if (applicationFormID === "form#wf-form-Programs-Application-Form") {
       convertkit.programsApplicationForm(email, first_name);
-      Sentry.captureMessage("Submitted " + first_name + "(" + email + ") to ConvertKit Programs Application Form");      
+      window.Sentry && Sentry.captureMessage("Submitted " + first_name + "(" + email + ") to ConvertKit Programs Application Form");      
     } else if (applicationFormID === "form#wf-form-Programs-Waitlist-Form") {
       convertkit.programsWaitlistForm(email, first_name);
-      Sentry.captureMessage("Submitted " + first_name + "(" + email + ") to ConvertKit Programs Waitlist Form");      
+      window.Sentry && Sentry.captureMessage("Submitted " + first_name + "(" + email + ") to ConvertKit Programs Waitlist Form");      
     } else if (applicationFormID === "form#wf-form-Community-Form") {
       convertkit.communityForm(email, first_name);
-      Sentry.captureMessage("Submitted " + first_name + "(" + email + ") to ConvertKit Community Form");      
+      window.Sentry && Sentry.captureMessage("Submitted " + first_name + "(" + email + ") to ConvertKit Community Form");      
     }
 
     // Fire Facebook pixel tracking for Lead event
-    fbq('track', 'Lead');
+    window.fbq && fbq('track', 'Lead');
 
     // Record user info in cookies
     Cookies.set('user_first_name', first_name, { expires: 7 });
     Cookies.set('user_email', email, { expires: 7 });
   } else {
-    Sentry.captureMessage("Attempted to submit invalid email address: " + email);
+    window.Sentry && Sentry.captureMessage("Attempted to submit invalid email address: " + email);
   }
 }
 
@@ -227,7 +229,7 @@ $(document).ready( () => {
       }
 
       // Fire Facebook pixel tracking for SubmitApplication event
-      fbq('track', 'SubmitApplication');
+      window.fbq && fbq('track', 'SubmitApplication');
     } else {
       // Redirect if params aren't set properly
       window.location = '/';
